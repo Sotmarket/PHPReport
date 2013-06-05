@@ -961,7 +961,7 @@ class PHPReport {
 
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'PDF');
         $this->objWriter->setSheetIndex($this->objPHPExcel->getActiveSheetIndex());
-        $this->objWriter->setUseInlineCss(true);
+        $this->objWriter->setUseInlineCss(false);
         $this->objWriter->setImagesRoot("");
         $this->objWriter->save($filename);
         return $this;
