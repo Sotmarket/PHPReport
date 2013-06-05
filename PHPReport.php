@@ -20,10 +20,11 @@
  *
  *
  * @package PHPReport
+ * @author K'iin Balam <kbalam@upnfm.edu.hn>
  * @author Vernes Šiljegović
  * @copyright  Copyright (c) 2012 PHPReport
- * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version 1.1, 2013-01-06
+ * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt    LGPL
+ * @version 1.0, 2012-03-04
  */
 
 /**
@@ -31,12 +32,11 @@
  *
  * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
-require_once 'PHPExcel.php';
 
 class PHPReport {
     
     //report template
-    private $_templateDir;
+    private $_templatePath;
     private $_template;
     private $_usingTemplate;
     
@@ -45,8 +45,6 @@ class PHPReport {
     private $_search=array();
     private $_replace=array();
     private $_group=array();
-	private $_lastColumn='A';
-	private $_lastRow=1;
     
     //parameters
     private $_renderHeading=false;
@@ -56,102 +54,105 @@ class PHPReport {
     
     //styling
     private $_headerStyleArray = array(
-				'font' => array(
-					'bold' => true,
-					'color' => array(
-						'rgb' => 'FFFFFF'
-						)
-				),
-				'fill' => array(
-					'type' => PHPExcel_Style_Fill::FILL_SOLID,
-					'startcolor' => array(
-						'rgb' => '4E5A7A'
-						)
-					)
-			);
-	private $_footerStyleArray = array(
-				'font' => array(
-					'bold' => true,
-				),
-				'fill' => array(
-					'type' => PHPExcel_Style_Fill::FILL_SOLID,
-					'startcolor' => array(
-						'rgb' => 'E4E8F3',
-						)
-					)
-				);
-	private $_headerGroupStyleArray = array(
-					'alignment' => array(
-						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT
-					),
-					'font' => array(
-						'bold' => true
-					),
-					'fill' => array(
-						'type' => PHPExcel_Style_Fill::FILL_SOLID,
-						'startcolor' => array(
-							'rgb' => '8DB4E3'
-							)
-						)
-				);
-	private $_footerGroupStyleArray = array(
-					'font' => array(
-						'bold' => true
-					),
-					'fill' => array(
-						'type' => PHPExcel_Style_Fill::FILL_SOLID,
-						'startcolor' => array(
-							'rgb' => 'C5D9F1'
-							)
-						)
-				);
+                'font' => array(
+                    'bold' => true,
+                    'color' => array(
+                        'rgb' => 'FFFFFF'
+                        )
+                ),
+                'fill' => array(
+                    'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                    'startcolor' => array(
+                        'rgb' => '4E5A7A'
+                        )
+                    )
+            );
+    private $_footerStyleArray = array(
+                'font' => array(
+                    'bold' => true,
+                ),
+                'fill' => array(
+                    'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                    'startcolor' => array(
+                        'rgb' => 'E4E8F3',
+                        )
+                    )
+                );
+    private $_headerGroupStyleArray = array(
+                    'alignment' => array(
+                        'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT
+                    ),
+                    'font' => array(
+                        'bold' => true
+                    ),
+                    'fill' => array(
+                        'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                        'startcolor' => array(
+                            'rgb' => '8DB4E3'
+                            )
+                        )
+                );
+    private $_footerGroupStyleArray = array(
+                    'font' => array(
+                        'bold' => true
+                    ),
+                    'fill' => array(
+                        'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                        'startcolor' => array(
+                            'rgb' => 'C5D9F1'
+                            )
+                        )
+                );
     private $_noResultStyleArray = array(
-					'borders' => array(
-						'outline' => array(
-							'style' => PHPExcel_Style_Border::BORDER_THIN
-						)
-					),
-					'alignment' => array(
-						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER
-					),
-					'font' => array(
-						'bold' => true
-					),
-					'fill' => array(
-						'type' => PHPExcel_Style_Fill::FILL_SOLID,
-						'startcolor' => array(
-							'rgb' => 'FFEBA5'
-							)
-						)
-				);
+                    'borders' => array(
+                        'outline' => array(
+                            'style' => PHPExcel_Style_Border::BORDER_THIN
+                        )
+                    ),
+                    'alignment' => array(
+                        'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER
+                    ),
+                    'font' => array(
+                        'bold' => true
+                    ),
+                    'fill' => array(
+                        'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                        'startcolor' => array(
+                            'rgb' => 'FFEBA5'
+                            )
+                        )
+                );
     private $_headingStyleArray = array(
-				'font' => array(
-					'bold' => true,
-					'color' => array(
-						'rgb' => '4E5A7A'
-						),
-					'size' => '24'
-				),
+                'font' => array(
+                    'bold' => true,
+                    'color' => array(
+                        'rgb' => '4E5A7A'
+                        ),
+                    'size' => '24'
+                ),
                 'alignment' => array(
                     'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER
                 )
-			);
+            );
     
     //PHPExcel objects
-	private $objReader;
-	private $objPHPExcel;
-	private $objWorksheet;
-	private $objWriter;
+    private $objReader;
+    /**
+     * @var PHPExcel
+     */
+    private $objPHPExcel;
+    private $objWorksheet;
+    private $objWriter;
     
     /**
      * Creates new report with some configuration parameters
      * @param array $config 
      */
     public function __construct($config=array())
-	{
+    {
         $this->setConfig($config);
         $this->init();
-	}
+    }
     
     /**
      * Uses configuration array to adjust report parameters
@@ -185,96 +186,103 @@ class PHPReport {
     }
     
     /**
-	 * Loads Excel file as a template for report
-	 */
-	public function loadTemplate($template='')
-	{
-		if($template!='')
-			$this->_template=$template;
+     * Loads Excel file as a template for report
+     */
+    public function loadTemplate($template='')
+    {
+        if($template!='')
+            $this->_template=$template;
         
-        if(!is_file($this->_templateDir.$this->_template))
-            throw new Exception('Unable to load template file: '.$this->_templateDir.$this->_template);
-		
-		//identify type of template file
-		$inputFileType = PHPExcel_IOFactory::identify($this->_templateDir.$this->_template);
-		//TODO: better control of allowed input types
-		//load template file into PHPExcel objects
-		$this->objReader = PHPExcel_IOFactory::createReader($inputFileType);
-		$this->objPHPExcel = $this->objReader->load($this->_templateDir.$this->_template);
-		$this->objWorksheet = $this->objPHPExcel->getActiveSheet();
+        if(!is_file($this->_templatePath.$this->_template))
+            throw new Exception('Unable to load template file: '.$this->_templatePath.$this->_template);
+        
+        //identify type of template file
+        $inputFileType = PHPExcel_IOFactory::identify($this->_templatePath.$this->_template);
+        //TODO: better control of allowed input types
+        //load template file into PHPExcel objects
+        $this->objReader = PHPExcel_IOFactory::createReader($inputFileType);
+        /**
+         * @var PHPExcel $phpExcel
+         */
+        $phpExcel = $this->objReader->load($this->_templatePath.$this->_template);
+
+        $this->objPHPExcel = $phpExcel;
+        $this->objWorksheet = $this->objPHPExcel->getActiveSheet();
         
         $this->_usingTemplate=true;
-	}
-	
-	/**
-	 * Creates PHPExcel object and template for report
-	 */
-	private function createTemplate()
-	{
-		$this->objPHPExcel = new PHPExcel();
-		$this->objPHPExcel->setActiveSheetIndex(0);
-		$this->objWorksheet = $this->objPHPExcel->getActiveSheet();
-		//TODO: other parameters
-		$this->objWorksheet->getPageSetup()->setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_PORTRAIT);
-		$this->objWorksheet->getPageSetup()->setPaperSize(PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4);
-		$this->objWorksheet->getPageSetup()->setHorizontalCentered(true);
-		$this->objWorksheet->getPageSetup()->setVerticalCentered(false);
+    }
+    public function setActiveSheet($index){
+        $this->objWorksheet = $this->objPHPExcel->setActiveSheetIndex($index);
+        return $this;
+    }
+    /**
+     * Creates PHPExcel object and template for report
+     */
+    private function createTemplate()
+    {
+        $this->objPHPExcel = new PHPExcel();
+        $this->objPHPExcel->setActiveSheetIndex(0);
+        $this->objWorksheet = $this->objPHPExcel->getActiveSheet();
         
         $this->_usingTemplate=false;
-	}
+    }
     
-	/**
-	 * Takes an array of all the data for report
-	 * 
-	 * @param array $dataCollection Associative array with data for report
+    /**
+     * Takes an array of all the data for report
+     * 
+     * @param array $dataCollection Associative array with data for report
      * or an array of such arrays
-	 * id - unique identifier of data group
-	 * data - Single array of data
-	 */
-	public function load($dataCollection)
-	{
-		if(!is_array($dataCollection))
-			throw new Exception("Could not load a non-array data!");
-        
-        //clear current data
-        $this->clearData();
-        
+     * id - unique identifier of data group
+     * data - Single array of data
+     */
+    protected function load($dataCollection)
+    {
+        if(!is_array($dataCollection))
+            throw new Exception("Could not load a non-array data!");
+
         //check if it is a single array of data
-		if(isset ($dataCollection['data']))
+        if(isset ($dataCollection['data']))
         {
-            $this->addData($dataCollection);
+            $this->addData($dataCollection['id'], $dataCollection['data']);
         }
         else
         {
             //it's an array of arrays of data, add all
             foreach($dataCollection as $data)
-                $this->addData($data);
+                $this->addData($data["id"], $data["data"]);
         }
-	}
-    
+    }
+
     /**
-	 * Takes an array of all the data for report
-	 * 
-	 * @param array $data Associative array with two elements
-	 * id - unique identifier of data group
-	 * data - Single array of data
+     * @return PHPExcel_Worksheet
      */
-    private function addData($data)
+    public function getWorkSheet(){
+        return $this->objWorksheet;
+    }
+    /**
+     * Takes an array of all the data for report
+     * 
+     * @param array $data Associative array with two elements
+     * id - unique identifier of data group
+     * data - Single array of data
+     */
+    public  function addData($id, $data,$repeat=false,$minRows=NULL,$format=NULL)
     {
-        if(!is_array($data))
-			throw new Exception("Could not load a non-array data!");
-		if(!isset ($data['id']))
-			throw new Exception("Every array of data needs an 'id'!");
-		if(!isset ($data['data']))
-			throw new Exception("Loaded array needs an element 'data'!");
-		
-		$this->_data[]=$data;
+
+        $row = array("id"=>$id, "data"=>$data, "repeat"=>$repeat);
+        if ($minRows){
+            $row["minRows"]=  $minRows;
+        }
+        if ($format){
+            $row["format"]=  $format;
+        }
+        $this->_data[]=$row;
     }
     
     /**
      * Clears internal collection of data 
      */
-    private function clearData()
+    public function clearData()
     {
         $this->_data=array();
     }
@@ -400,113 +408,103 @@ class PHPReport {
      */
     public function generateReport()
     {
-		$this->_lastColumn=$this->objWorksheet->getHighestColumn();//TODO: better detection
-		$this->_lastRow=$this->objWorksheet->getHighestRow();
         foreach($this->_data as $data)
-		{
-			if(isset ($data['repeat']) && $data['repeat']==true)
-			{
-				//Repeating data
-				$foundTags=false;
-				$repeatRange='';
-				$firstRow='';
-				$lastRow='';
-				
-				$firstCol='A';//TODO: better detection
-				$lastCol=$this->_lastColumn;
-				
-				//scan the template
-				//search for repeating part
-				foreach ($this->objWorksheet->getRowIterator() as $row)
-				{
-					$cellIterator = $row->getCellIterator();
-					$rowIndex = $row->getRowIndex();
-					//find the repeating range (one or more rows)
-					foreach ($cellIterator as $cell)
-					{
-						$cellval=trim($cell->getValue());
-						$column = $cell->getColumn();
-						//see if the cell has something for replacing
-						if(preg_match_all("/\{".$data['id'].":(\w*|#\+?-?(\d*)?)\}/", $cellval, $matches))
-						{
-							//this cell has replacement tags
-							if(!$foundTags) $foundTags=true;
-							//remember the first ant the last row
-							if($rowIndex!=$firstRow)
-								$lastRow=$rowIndex;
-							if($firstRow=='')
-								$firstRow=$rowIndex;
-						}
-					}
-				}
-				
-				//form the repeating range
-				if($foundTags)
-					$repeatRange=$firstCol.$firstRow.":".$lastCol.$lastRow;
-				
-				//check if this is the last row
-				if($foundTags && $lastRow==$this->_lastRow)
-					$data['last']=true;
-				
-				//set initial format data
-				if(! isset($data['format']))
-					$data['format']=array();
-				
-				//set default step as 1
-				if(! isset($data['step']))
-					$data['step']=1;
-				
-				//check if data is an array
-				if(is_array($data['data']))
-				{
-					//every element is an array with data for all the columns
-					if($foundTags)
-					{
-						//insert repeating rows, as many as needed
-						//check if grouping is defined
-						if(count($this->_group))
-							$this->generateRepeatingRowsWithGrouping($data, $repeatRange);
-						else
-							$this->generateRepeatingRows($data, $repeatRange);
-						//remove the template rows
-						for($i=$firstRow;$i<=$lastRow;$i++)
-						{
-							$this->objWorksheet->removeRow($firstRow);
-						}
-						//if there is no data
-						if(count($data['data'])==0)
-							$this->addNoResultRow($firstRow,$firstCol,$lastCol);
-					}
-				}
-				else
-				{
-				    //TODO
-				    //maybe an SQL query?
-				    //needs to be database agnostic
-				}
-				
-			}
-			else
-			{
-				//non-repeating data
-				//check for additional formating
-				if(! isset($data['format']))
-					$data['format']=array();
-				
-				//check if data is an array or mybe a SQL query
-				if(is_array($data['data']))
-				{
-					//array of data
-					$this->generateSingleRow($data);
-				}
-				else
-				{
-					//TODO
-				    //maybe an SQL query?
-				    //needs to be database agnostic
-				}
-			}
-		}
+        {
+            if(isset ($data['repeat']) && $data['repeat']==true)
+            {
+                //Repeating data
+                $foundTags=false;
+                $repeatRange='';
+                $firstRow='';
+                $lastRow='';
+                
+                $firstCol='A';//TODO: better detection
+                $lastCol=$this->objWorksheet->getHighestColumn();//TODO: better detection
+                
+                //scan the template
+                //search for repeating part
+                foreach ($this->objWorksheet->getRowIterator() as $row)
+                {
+                    $cellIterator = $row->getCellIterator();
+                    $rowIndex = $row->getRowIndex();
+                    //find the repeating range (one or more rows)
+                    foreach ($cellIterator as $cell)
+                    {
+                        $cellval=trim($cell->getValue());
+                        $column = $cell->getColumn();
+                        //see if the cell has something for replacing
+                        if(preg_match_all("/\{".$data['id'].":(\w*|#\+?-?(\d*)?)\}/", $cellval, $matches))
+                        {
+                            //this cell has replacement tags
+                            if(!$foundTags) $foundTags=true;
+                            //remember the first ant the last row
+                            if($rowIndex!=$firstRow)
+                                $lastRow=$rowIndex;
+                            if($firstRow=='')
+                                $firstRow=$rowIndex;
+                        }
+                    }
+                }
+                
+                //form the repeating range
+                if($foundTags)
+                    $repeatRange=$firstCol.$firstRow.":".$lastCol.$lastRow;
+                
+                //set initial format data
+                if(! isset($data['format']))
+                    $data['format']=array();
+                
+                //check if data is an array
+                if(is_array($data['data']))
+                {
+                    //every element is an array with data for all the columns
+                    if($foundTags)
+                    {
+                        //insert repeating rows, as many as needed
+                        //check if grouping is defined
+                        if(count($this->_group))
+                            $this->generateRepeatingRowsWithGrouping($data, $repeatRange);
+                        else
+                            $this->generateRepeatingRows($data, $repeatRange);
+                        //remove the template rows
+                        for($i=$firstRow;$i<=$lastRow;$i++)
+                        {
+                            $this->objWorksheet->removeRow($firstRow);
+                        }
+                        //if there is no data
+                        if(count($data['data'])==0)
+                            $this->addNoResultRow($firstRow,$firstCol,$lastCol);
+                    }
+                }
+                else
+                {
+                    //TODO
+                    //maybe an SQL query?
+                    //needs to be database agnostic
+                }
+                
+            }
+            else
+            {
+                //non-repeating data
+                //check for additional formating
+                if(! isset($data['format']))
+                    $data['format']=array();
+                
+                //check if data is an array or mybe a SQL query
+                if(is_array($data['data']))
+                {
+                    //array of data
+                    $this->generateSingleRow($data);
+                }
+                else
+                {
+                    //TODO
+                    //maybe an SQL query?
+                    //needs to be database agnostic
+                }
+            }
+        }
 
         //call the replacing function
         $this->searchAndReplace();
@@ -514,7 +512,7 @@ class PHPReport {
         //generate heading if heading text is set
         if($this->_headingText!='')
             $this->generateHeading();
-		
+    return $this;
     }
     
     /**
@@ -524,22 +522,22 @@ class PHPReport {
     private function generateSingleRow(& $data)
     {
         $id=$data['id'];
-		$format=$data['format'];
-		foreach($data['data'] as $key=>$value)
-		{
-			$search="{".$id.":".$key."}";
-			$this->_search[]=$search;
-			
-			//if it needs formating
-			if(isset($format[$key]))
-			{
-				foreach($format[$key] as $ftype=>$f)
-				{
-					$value=$this->formatValue($value,$ftype,$f);
-				}
-			}
-			$this->_replace[]=$value;
-		}
+        $format=$data['format'];
+        foreach($data['data'] as $key=>$value)
+        {
+            $search="{".$id.":".$key."}";
+            $this->_search[]=$search;
+            
+            //if it needs formating
+            if(isset($format[$key]))
+            {
+                foreach($format[$key] as $ftype=>$f)
+                {
+                    $value=$this->formatValue($value,$ftype,$f);
+                }
+            }
+            $this->_replace[]=$value;
+        }
     }
     
     /**
@@ -547,69 +545,60 @@ class PHPReport {
      * @param array $data
      * @param string $repeatRange 
      */
-	private function generateRepeatingRows(& $data, $repeatRange)
+    private function generateRepeatingRows(& $data, $repeatRange)
     {
         $rowCounter=0;
-		$repeatTemplateArray=$this->objWorksheet->rangeToArray($repeatRange,null,true,true,true);
-		//insert repeating rows but first check for minimum number of rows
-		if(isset($data['minRows']))
-		{
-			$minRows=(int)$data['minRows'];
-		}
-		else
-			$minRows=0;
-		
-		//is this the last data
-		if(isset($data['last']))
-			$last=$data['last'];
-		else
-			$last=false;
-		
+        $repeatTemplateArray=$this->objWorksheet->rangeToArray($repeatRange,null,true,true,true);
+        //insert repeating rows but first check for minimum number of rows
+        if(isset($data['minRows']))
+        {
+            $minRows=(int)$data['minRows'];
+        }
+        else
+            $minRows=0;
         $templateKeys=array_keys($repeatTemplateArray);
-		$lastRowFoundAt=end($templateKeys);
-		$firstRowFoundAt=reset($templateKeys);
-		$rowsFound=count($repeatTemplateArray);
-		
-		$mergeCells=$this->objWorksheet->getMergeCells();
-		$needMerge=array();
-		foreach($mergeCells as $mergeCell)
-		{
-			if($this->isSubrange($mergeCell, $repeatRange))
-			{
-				//contains merged cells, save for later
-				$needMerge[]=$mergeCell;
-			}
-		}
-		
-		//check if any new rows need to bi inserted
-		$dataRows=count($data['data']);
-		if($minRows<$dataRows)
-			$this->objWorksheet->insertNewRowBefore($lastRowFoundAt+1,$rowsFound * ($dataRows - $minRows));
-		
-		//check all the data
-		foreach ($data['data'] as $value)
-		{
-			$rowCounter++;
-			$skip=$rowCounter*$rowsFound;
-			$newRowIndex=$firstRowFoundAt+$skip;
-			
-			//copy merge definitions
-			foreach($needMerge as $nm)
-			{
-				$nm=PHPExcel_Cell::rangeBoundaries($nm);
-				$newMerge=PHPExcel_Cell::stringFromColumnIndex($nm[0][0]-1).($nm[0][1]+$skip).":".PHPExcel_Cell::stringFromColumnIndex($nm[1][0]-1).($nm[1][1]+$skip);
-				
-				$this->objWorksheet->mergeCells($newMerge);
-			}
-			
-			//generate row of data
-			$this->generateSingleRepeatingRow($value, $repeatTemplateArray, $rowCounter, $skip, $data['id'], $data['format'], $data['step']);
-		}
-		//remove merge on template, BUG fix
-		foreach($needMerge as $nm)
-		{
-			$this->objWorksheet->unmergeCells($nm);
-		}
+        $lastRowFoundAt=end($templateKeys);
+        $firstRowFoundAt=reset($templateKeys);
+        $rowsFound=count($repeatTemplateArray);
+        
+        $mergeCells=$this->objWorksheet->getMergeCells();
+        $needMerge=array();
+        foreach($mergeCells as $mergeCell)
+        {
+            if($this->isSubrange($mergeCell, $repeatRange))
+            {
+                //contains merged cells, save for later
+                $needMerge[]=$mergeCell;
+            }
+        }
+        //check all the data
+        foreach ($data['data'] as $value)
+        {
+            $rowCounter++;
+            $skip=$rowCounter*$rowsFound;
+            $newRowIndex=$firstRowFoundAt+$skip;
+            
+            //insert one or more rows if needed
+            if($minRows<$rowCounter)
+                $this->objWorksheet->insertNewRowBefore($newRowIndex,$rowsFound);
+            
+            //copy merge definitions
+            foreach($needMerge as $nm)
+            {
+                $nm=PHPExcel_Cell::rangeBoundaries($nm);
+                $newMerge=PHPExcel_Cell::stringFromColumnIndex($nm[0][0]-1).($nm[0][1]+$skip).":".PHPExcel_Cell::stringFromColumnIndex($nm[1][0]-1).($nm[1][1]+$skip);
+                
+                $this->objWorksheet->mergeCells($newMerge);
+            }
+            
+            //generate row of data
+            $this->generateSingleRepeatingRow($value, $repeatTemplateArray, $rowCounter, $skip, $data['id'], $data['format']);
+        }
+        //remove merge on template, BUG fix
+        foreach($needMerge as $nm)
+        {
+            $this->objWorksheet->unmergeCells($nm);
+        }
     }
     
     /**
@@ -617,100 +606,100 @@ class PHPReport {
      * @param array $data
      * @param string $repeatRange 
      */
-	private function generateRepeatingRowsWithGrouping(& $data, $repeatRange)
+    private function generateRepeatingRowsWithGrouping(& $data, $repeatRange)
     {
         $rowCounter=0;
-		$groupCounter=0;
-		$footerCount=0;
-		$repeatTemplateArray=$this->objWorksheet->rangeToArray($repeatRange,null,true,true,true);
-		//insert repeating rows but first check for minimum number of rows
-		if(isset($data['minRows']))
-		{
-			$minRows=(int)$data['minRows'];
-		}
-		else
-			$minRows=0;
-		
+        $groupCounter=0;
+        $footerCount=0;
+        $repeatTemplateArray=$this->objWorksheet->rangeToArray($repeatRange,null,true,true,true);
+        //insert repeating rows but first check for minimum number of rows
+        if(isset($data['minRows']))
+        {
+            $minRows=(int)$data['minRows'];
+        }
+        else
+            $minRows=0;
+        
         $templateKeys=array_keys($repeatTemplateArray);
-		$lastRowFoundAt=end($templateKeys);
-		$firstRowFoundAt=reset($templateKeys);
-		$rowsFound=count($repeatTemplateArray);
-		
-		list($rangeStart,$rangeEnd) = PHPExcel_Cell::rangeBoundaries($repeatRange);
-		$firstCol=PHPExcel_Cell::stringFromColumnIndex($rangeStart[0]-1);
-		$lastCol=PHPExcel_Cell::stringFromColumnIndex($rangeEnd[0]-1);
-		
-		$mergeCells=$this->objWorksheet->getMergeCells();
-		$needMerge=array();
-		foreach($mergeCells as $mergeCell)
-		{
-			if($this->isSubrange($mergeCell, $repeatRange))
-			{
-				//contains merged cells, save for later
-				$needMerge[]=$mergeCell;
-			}
-		}
-		
-		//group array should have header, rows and summary elements
-		foreach($this->_group['rows'] as $name=>$rows)
-		{
-			$groupCounter++;
-			$caption=$this->_group['caption'][$name];
-			$newRowIndex=$firstRowFoundAt+$rowCounter*$rowsFound+$footerCount*$rowsFound+$groupCounter;
-			//insert header for the group
-			$this->objWorksheet->insertNewRowBefore($newRowIndex,1);
-			$this->objWorksheet->setCellValue($firstCol.$newRowIndex,$caption);
-			$this->objWorksheet->mergeCells($firstCol.$newRowIndex.":".$lastCol.$newRowIndex);
+        $lastRowFoundAt=end($templateKeys);
+        $firstRowFoundAt=reset($templateKeys);
+        $rowsFound=count($repeatTemplateArray);
+        
+        list($rangeStart,$rangeEnd) = PHPExcel_Cell::rangeBoundaries($repeatRange);
+        $firstCol=PHPExcel_Cell::stringFromColumnIndex($rangeStart[0]-1);
+        $lastCol=PHPExcel_Cell::stringFromColumnIndex($rangeEnd[0]-1);
+        
+        $mergeCells=$this->objWorksheet->getMergeCells();
+        $needMerge=array();
+        foreach($mergeCells as $mergeCell)
+        {
+            if($this->isSubrange($mergeCell, $repeatRange))
+            {
+                //contains merged cells, save for later
+                $needMerge[]=$mergeCell;
+            }
+        }
+        
+        //group array should have header, rows and summary elements
+        foreach($this->_group['rows'] as $name=>$rows)
+        {
+            $groupCounter++;
+            $caption=$this->_group['caption'][$name];
+            $newRowIndex=$firstRowFoundAt+$rowCounter*$rowsFound+$footerCount*$rowsFound+$groupCounter;
+            //insert header for the group
+            $this->objWorksheet->insertNewRowBefore($newRowIndex,1);
+            $this->objWorksheet->setCellValue($firstCol.$newRowIndex,$caption);
+            $this->objWorksheet->mergeCells($firstCol.$newRowIndex.":".$lastCol.$newRowIndex);
 
-			//add style for the header
-			
-			$this->objWorksheet->getStyle($firstCol.$newRowIndex)->applyFromArray($this->_headerGroupStyleArray);
-			
-			//add data for the group
-			foreach ($rows as $row)
-			{
-				$value=$data['data'][$row];
-				$rowCounter++;
-				$skip=$rowCounter*$rowsFound+$footerCount*$rowsFound+$groupCounter;
-				$newRowIndex=$firstRowFoundAt+$skip;
+            //add style for the header
+            
+            $this->objWorksheet->getStyle($firstCol.$newRowIndex)->applyFromArray($this->_headerGroupStyleArray);
+            
+            //add data for the group
+            foreach ($rows as $row)
+            {
+                $value=$data['data'][$row];
+                $rowCounter++;
+                $skip=$rowCounter*$rowsFound+$footerCount*$rowsFound+$groupCounter;
+                $newRowIndex=$firstRowFoundAt+$skip;
 
-				//insert one or more rows if needed
-				if($minRows<$rowCounter)
-					$this->objWorksheet->insertNewRowBefore($newRowIndex,$rowsFound);
+                //insert one or more rows if needed
+                if($minRows<$rowCounter)
+                    $this->objWorksheet->insertNewRowBefore($newRowIndex,$rowsFound);
 
-				//copy merge definitions
-				foreach($needMerge as $nm)
-				{
-					$nm=PHPExcel_Cell::rangeBoundaries($nm);
-					$newMerge=PHPExcel_Cell::stringFromColumnIndex($nm[0][0]-1).($nm[0][1]+$skip).":".PHPExcel_Cell::stringFromColumnIndex($nm[1][0]-1).($nm[1][1]+$skip);
+                //copy merge definitions
+                foreach($needMerge as $nm)
+                {
+                    $nm=PHPExcel_Cell::rangeBoundaries($nm);
+                    $newMerge=PHPExcel_Cell::stringFromColumnIndex($nm[0][0]-1).($nm[0][1]+$skip).":".PHPExcel_Cell::stringFromColumnIndex($nm[1][0]-1).($nm[1][1]+$skip);
 
-					$this->objWorksheet->mergeCells($newMerge);
-				}
+                    $this->objWorksheet->mergeCells($newMerge);
+                }
 
-				//generate row of data
-				$this->generateSingleRepeatingRow($value, $repeatTemplateArray, $rowCounter, $skip, $data['id'], $data['format'], $data['step']);
-			}
-			
-			//include the footer if defined
-			if(isset($this->_group['summary']) && isset($this->_group['summary'][$name]))
-			{
-				$footerCount++;
-				$skip=$groupCounter+$rowCounter*$rowsFound+$footerCount*$rowsFound;
-				$newRowIndex=$firstRowFoundAt+$skip;
-				
-				$this->objWorksheet->insertNewRowBefore($newRowIndex,$rowsFound);
-				$this->generateSingleRepeatingRow($this->_group['summary'][$name], $repeatTemplateArray, '', $skip, $data['id'], $data['format'], $data['step']);
-				//add style for the footer
-				
-				$this->objWorksheet->getStyle($firstCol.$newRowIndex.":".$lastCol.$newRowIndex)->applyFromArray($this->_footerGroupStyleArray);
-			}
-			
-			//remove merge on template, BUG fix
-			foreach($needMerge as $nm)
-			{
-				$this->objWorksheet->unmergeCells($nm);
-			}
-		}
+                //generate row of data
+                $this->generateSingleRepeatingRow($value, $repeatTemplateArray, $rowCounter, $skip, $data['id'], $data['format']);
+            }
+            
+            //include the footer if defined
+            if(isset($this->_group['summary']) && isset($this->_group['summary'][$name]))
+            {
+                $footerCount++;
+                $skip=$groupCounter+$rowCounter*$rowsFound+$footerCount*$rowsFound;
+                $newRowIndex=$firstRowFoundAt+$skip;
+                
+                $this->objWorksheet->insertNewRowBefore($newRowIndex,$rowsFound);
+                $this->generateSingleRepeatingRow($this->_group['summary'][$name], $repeatTemplateArray, '', $skip, $data['id'], $data['format']);
+                //add style for the footer
+                
+                $this->objWorksheet->getStyle($firstCol.$newRowIndex.":".$lastCol.$newRowIndex)->applyFromArray($this->_footerGroupStyleArray);
+            }
+            
+            //remove merge on template, BUG fix
+            foreach($needMerge as $nm)
+            {
+                $this->objWorksheet->unmergeCells($nm);
+            }
+        }
     }
     
     /**
@@ -721,9 +710,8 @@ class PHPReport {
      * @param int $skip
      * @param string $id
      * @param array $format 
-     * @param int $step
      */
-	private function generateSingleRepeatingRow(& $value, & $repeatTemplateArray, $rowCounter, $skip, $id, $format, $step)
+    private function generateSingleRepeatingRow(& $value, & $repeatTemplateArray, $rowCounter, $skip, $id, $format)
     {
         foreach($repeatTemplateArray as $rowKey=>$rowData)
         {
@@ -752,7 +740,7 @@ class PHPReport {
                             else
                                 $offset=0;
 
-                            $rValue=($rowCounter-1)*$step+1+(int)$offset;
+                            $rValue=$rowCounter+(int)$offset;
                         }
                         elseif(key_exists($mkey, $value))
                         {
@@ -797,9 +785,9 @@ class PHPReport {
     }
     
     
-	/**
-	 * Check and apply various formating
-	 */
+    /**
+     * Check and apply various formating
+     */
     /**
      * Applies various formatings
      * Type can be datetime or number
@@ -807,50 +795,69 @@ class PHPReport {
      * @param string $type
      * @param mixed $format 
      */
-	protected function formatValue($value,$type,$format)
+    protected function formatValue($value,$type,$format)
     {
         if($type=='datetime')
-		{
-			//format can only be string
-			if(is_string($format))
-				$value=date($format, strtotime($value));
-		}
-		elseif($type=='number')
-		{
-			//format must be an array
-			if(is_array($format))
-			{
-				//set the defaults
-				if(!isset($format['prefix']))
-					$format['prefix']='';
-				if(!isset($format['decimals']))
-					$format['decimals']=0;
-				if(!isset($format['decPoint']))
-					$format['decPoint']='.';
-				if(!isset($format['thousandsSep']))
-					$format['thousandsSep']=',';
-				if(!isset($format['sufix']))
-					$format['sufix']='';
-				$value=$format['prefix'].number_format($value,$format['decimals'],$format['decPoint'],$format['thousandsSep']).$format['sufix'];
-			}
-		}
-		
-		return $value;
+        {
+            //format can only be string
+            if(is_string($format))
+                $value=date($format, strtotime($value));
+        }
+        elseif($type=='number')
+        {
+            //format must be an array
+            if(is_array($format))
+            {
+                //set the defaults
+                if(!isset($format['prefix']))
+                    $format['prefix']='';
+                if(!isset($format['decimals']))
+                    $format['decimals']=0;
+                if(!isset($format['decPoint']))
+                    $format['decPoint']='.';
+                if(!isset($format['thousandsSep']))
+                    $format['thousandsSep']=',';
+                if(!isset($format['sufix']))
+                    $format['sufix']='';
+                $value=$format['prefix'].number_format($value,$format['decimals'],$format['decPoint'],$format['thousandsSep']).$format['sufix'];
+            }
+        }
+        
+        return $value;
     }
     
     /** 
-	 * Replaces all the cells with real data
-	 */
-	private function searchAndReplace()
+     * Replaces all the cells with real data
+     */
+    private function searchAndReplace()
     {
         foreach ($this->objWorksheet->getRowIterator() as $row)
-		{
-			$cellIterator = $row->getCellIterator();
-			foreach ($cellIterator as $cell)
-			{
-				$cell->setValue(str_replace($this->_search, $this->_replace, $cell->getValue()));
-			}
-		}
+        {
+            $cellIterator = $row->getCellIterator();
+            foreach ($cellIterator as $cell)
+            {
+                $cell->setValue(str_replace($this->_search, $this->_replace, $cell->getValue()));
+
+                //если в ячейке содержится валидный урл - удаляем значение и вставляем картинку
+                if(filter_var($cell->getValue(), FILTER_VALIDATE_URL) !== FALSE){
+                    $url = $cell->getValue();
+                    $cell->setValue('');
+                    $oWorkSheet = $this->getWorkSheet();
+                    $iRowHeight = $oWorkSheet->getRowDimension($cell->getRow())->getRowHeight();
+                    $sImageDirectory = "fake";
+                    if (!is_dir($sImageDirectory)){
+                        mkdir($sImageDirectory,0775);
+                    }
+                    $barCode = $sImageDirectory.md5($url).'.png';
+                    Utils::downloadFile($url,$barCode);
+                    $objDrawing = new PHPExcel_Worksheet_Drawing();
+                    $objDrawing->setPath($barCode);
+                    $objDrawing->setHeight($iRowHeight);
+                    $objDrawing->setCoordinates($cell->getColumn().$cell->getRow());
+                    $objDrawing->setWorksheet($this->getWorkSheet());
+                }
+            }
+        }
     }
     
     /**
@@ -862,180 +869,131 @@ class PHPReport {
     private function addNoResultRow($rowIndex,$colMin,$colMax)
     {
         //insert one row
-		$this->objWorksheet->insertNewRowBefore($rowIndex);
-		
-		//merge as required
-		$this->objWorksheet->mergeCells($colMin.$rowIndex.":".$colMax.$rowIndex);
-		
-		//insert text
-		
-		$this->objWorksheet->setCellValue($colMin.$rowIndex, $this->_noResultText);
-		
-		$this->objWorksheet->getStyle($colMin.$rowIndex.":".$colMax.$rowIndex)->applyFromArray($this->_noResultStyleArray);
+        $this->objWorksheet->insertNewRowBefore($rowIndex);
+        
+        //merge as required
+        $this->objWorksheet->mergeCells($colMin.$rowIndex.":".$colMax.$rowIndex);
+        
+        //insert text
+        
+        $this->objWorksheet->setCellValue($colMin.$rowIndex, $this->_noResultText);
+        
+        $this->objWorksheet->getStyle($colMin.$rowIndex.":".$colMax.$rowIndex)->applyFromArray($this->_noResultStyleArray);
     }
     
     /**
-	 * Generates heading title of the report
-	 */
+     * Generates heading title of the report
+     */
     private function generateHeading()
     {
         //get current dimensions
-		$highestRow = $this->objWorksheet->getHighestRow(); // e.g. 10
-		$highestColumn = $this->objWorksheet->getHighestColumn(); // e.g 'F'
-		
-		$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); 
-
-		//insert row on top
-		$this->objWorksheet->insertNewRowBefore(1,2);
-		
-		//merge cells
-		$this->objWorksheet->mergeCells("A1:".$highestColumn."1");
-		
-		//set the text for header
-		$this->objWorksheet->setCellValue("A1", $this->_headingText);
-		$this->objWorksheet->getStyle('A1')->getAlignment()->setWrapText(true);
-		$this->objWorksheet->getRowDimension('1')->setRowHeight(48);
-		
-        //Apply style
-		$this->objWorksheet->getStyle("A1")->applyFromArray($this->_headingStyleArray);
-    }
-    
-    /**
-     * Renders report as specified output file
-     * @param string $type
-     * @param string $filename 
-     */
-    public function render($type='html',$filename='')
-    {
-        //create or generate report
-        if($this->_usingTemplate)
-            $this->generateReport();
-        else
-            $this->createReport();
+        $highestRow = $this->objWorksheet->getHighestRow(); // e.g. 10
+        $highestColumn = $this->objWorksheet->getHighestColumn(); // e.g 'F'
         
-        if($type=='')
-			$type="html";
-		
-		if($filename=='')
-			$filename="Report ".date("Y-m-d");
-		else
-		    $filename=strftime($filename);
-		//http://strftime.net/
-		
+        $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); 
 
-		if(strtolower($type)=='html')
-			return $this->renderHtml();
-		elseif(strtolower($type)=='excel')
-			return $this->renderXlsx($filename);
-		elseif(strtolower($type)=='excel2003')
-			return $this->renderXls($filename);
-		elseif(strtolower($type)=='pdf')
-			return $this->renderPdf($filename);
-		else
-			return "Error: unsupported export type!"; //TODO: better error handling
+        //insert row on top
+        $this->objWorksheet->insertNewRowBefore(1,2);
+        
+        //merge cells
+        $this->objWorksheet->mergeCells("A1:".$highestColumn."1");
+        
+        //set the text for header
+        $this->objWorksheet->setCellValue("A1", $this->_headingText);
+        $this->objWorksheet->getStyle('A1')->getAlignment()->setWrapText(true);
+        $this->objWorksheet->getRowDimension('1')->setRowHeight(48);
+        
+        //Apply style
+        $this->objWorksheet->getStyle("A1")->applyFromArray($this->_headingStyleArray);
     }
+
     
     /**
      * Renders report as a HTML output
-	 */
-	private function renderHtml()
+     */
+    public function renderHtml($filename)
     {
-        $this->objWriter = new PHPExcel_Writer_HTML($this->objPHPExcel);
 
-		// Generate HTML
-		$html = '';
-		$html .= $this->objWriter->generateHTMLHeader(true);
-		$html .= $this->objWriter->generateSheetData();
-		$html .= $this->objWriter->generateHTMLFooter();
-		$html .= '';
-		$this->objPHPExcel->disconnectWorkSheets();
-		unset($this->objWriter);
-		unset($this->objWorksheet);
-		unset($this->objReader);
-		unset($this->objPHPExcel);
-		
-		return $html;
+        $this->objWriter = new PHPExcel_Writer_HTML($this->objPHPExcel);
+        $this->objWriter->setUseInlineCss(true);
+        $this->objWriter->setSheetIndex($this->objPHPExcel->getActiveSheetIndex());
+        // Generate HTML
+        $html = '';
+        $html .= $this->objWriter->generateHTMLHeader(true);
+        $html .= $this->objWriter->generateSheetData();
+        $html .= $this->objWriter->generateHTMLFooter();
+        $html .= '';
+        file_put_contents($filename, $html);
+
+        return $this;
     }
     
     /**
      * Renders report as a XLSX file
-	 */
-	private function renderXlsx($filename)
+     */
+    public function renderXlsx($filename)
     {
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-		header('Content-Disposition: attachment;filename="'.$filename.'.xlsx"');
-		header('Cache-Control: max-age=0');
 
-		$this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'Excel2007');
+        $this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'Excel2007');
 
-        $this->objWriter->save('php://output');
-		unset($this->objWriter);
-		unset($this->objWorksheet);
-		unset($this->objReader);
-		unset($this->objPHPExcel);
-		exit();
+        $this->objWriter->save($filename);
+        return $this;
+
     }
     
-	/**
+    /**
      * Renders report as a XLS file
-	 */
-	private function renderXls($filename)
+     */
+    public function renderXls($filename)
     {
-        header('Content-Type: application/vnd.ms-excel');
-		header('Content-Disposition: attachment;filename="'.$filename.'.xls"');
-		header('Cache-Control: max-age=0');
 
-		$this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'Excel5');
+        $this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'Excel5');
+        $this->objWriter->save($filename);
+        return $this;
 
-        $this->objWriter->save('php://output');
-		unset($this->objWriter);
-		unset($this->objWorksheet);
-		unset($this->objReader);
-		unset($this->objPHPExcel);
-		exit();
     }
     
     /**
      * Renders report as a PDF file
-	 */
-	private function renderPdf($filename)
-	{
-        header('Content-Type: application/vnd.pdf');
-		header('Content-Disposition: attachment;filename="'.$filename.'.pdf"');
-		header('Cache-Control: max-age=0');
-		
-		$this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'PDF');
+     */
+    public function renderPdf($filename)
+    {
 
-        $this->objWriter->save('php://output');
-		exit();
+        $this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'PDF');
+        $this->objWriter->setSheetIndex($this->objPHPExcel->getActiveSheetIndex());
+        $this->objWriter->setUseInlineCss(true);
+        $this->objWriter->setImagesRoot("");
+        $this->objWriter->save($filename);
+        return $this;
+
     }
     
-	/**
-	 * Helper function for checking subranges of a range
-	 */
-	public function isSubrange($subRange,$range)
-	{
-		list($rangeStart,$rangeEnd) = PHPExcel_Cell::rangeBoundaries($range);
-		list($subrangeStart,$subrangeEnd) = PHPExcel_Cell::rangeBoundaries($subRange);
-		return (($subrangeStart[0]>=$rangeStart[0]) && ($subrangeStart[1]>=$rangeStart[1]) && ($subrangeEnd[0]<=$rangeEnd[0]) && ($subrangeEnd[1]<=$rangeEnd[1]));
-	}
-	
-	/**
-	 * Enabling strip rows
-	 */
-	function enableStripRows()
-	{
-		$this->_useStripRows=true;
-	}
-	
-	/**
-	 * Sets title of the report header
-	 */
-	function setHeading($h)
-	{
-		$this->_headingText=$h;
-	}
-	
+    /**
+     * Helper function for checking subranges of a range
+     */
+    public function isSubrange($subRange,$range)
+    {
+        list($rangeStart,$rangeEnd) = PHPExcel_Cell::rangeBoundaries($range);
+        list($subrangeStart,$subrangeEnd) = PHPExcel_Cell::rangeBoundaries($subRange);
+        return (($subrangeStart[0]>=$rangeStart[0]) && ($subrangeStart[1]>=$rangeStart[1]) && ($subrangeEnd[0]<=$rangeEnd[0]) && ($subrangeEnd[1]<=$rangeEnd[1]));
+    }
+    
+    /**
+     * Enabling strip rows
+     */
+    public function enableStripRows()
+    {
+        $this->_useStripRows=true;
+    }
+    
+    /**
+     * Sets title of the report header
+     */
+    function setHeading($h)
+    {
+        $this->_headingText=$h;
+    }
+    
 }
 
 /**
@@ -1045,5 +1003,5 @@ class PHPReport {
  */
 function pixel2unit($p)
 {
-	return ($p-5)/7;
+    return ($p-5)/7;
 }
