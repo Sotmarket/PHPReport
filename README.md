@@ -13,3 +13,4 @@ Tasks
 Refactoring
 *    remove using arrays as data source.
 *    add ability to make own objects for to insert charts or complicate images
+
