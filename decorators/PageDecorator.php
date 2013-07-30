@@ -45,23 +45,15 @@ class PageDecorator {
         $rowHeight = $sheet->getRowDimension($finishRow)->getRowHeight();
         //$have =
         $have = $pager->getHeightOfRowRange($finishRow+$this->getTotalStrings()+1, $rowBounds[$pageLastDataRow]);
-        /*
-        print_r($rowBounds);
-        echo("pagelast".$pageLastDataRow."\n");
-        echo("finishRow".$finishRow."\n");
-        echo("need".$need."\n");
-        echo("have:".$have."\n");
-        */
-        //die();
 
         if ($pageLastDataRow<$pager->getCountPages()){
             $rowHeight = $sheet->getRowDimension($finishRow)->getRowHeight();
 
             $countRows = round(($have)/$rowHeight)+2; //magick
 
-            $sheet->insertNewRowBefore($finishRow,$countRows);
+            $sheet->insertNewRowBefore($finishRow+1,$countRows);
 
-            for($k=$finishRow; $k<$finishRow+$countRows; $k++){
+            for($k=$finishRow+1; $k<$finishRow+1+$countRows; $k++){
                 $sheet->getCellByColumnAndRow(0, $k)->setValue("_");
                 $sheet
                     ->getStyleByColumnAndRow(0,$k)

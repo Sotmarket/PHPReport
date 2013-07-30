@@ -48,7 +48,7 @@ class Pager{
     {
         if (0 == count ($this->rowBounds)){
             $sheet = $this->getExcelSheet();
-            $highestRow = $sheet->getHighestRow()+5;
+            $highestRow = $sheet->getHighestRow()+15; // футер с запасом
             $page = 1;
             $printMargins = $sheet->getPageMargins();
             $footer_top  =($printMargins->getTop()+$printMargins->getBottom())*self::INCH_FACTOR;
@@ -65,7 +65,7 @@ class Pager{
 
                 $sum+=$height;
                 $count_per_page++;
-                 echo($i . ":".$height."\n");
+                // echo($i . ":".$height."\n");
                 if ($sum > (($this->getPageHeight()))){
                     $this->rowBounds[$page]=$i-1;
                     //echo ("page:" . $page . "count_per_page" . ($count_per_page-1)."\n");
@@ -76,9 +76,7 @@ class Pager{
                 }
             }
             // last page
-            //echo("lastsum:".$sum."\n"); echo($this->getPageHeight());
 
-            //echo("lastsum:".$sum."\n"); echo($this->getPageHeight()); die();
             $this->rowBounds[$page]=$i;
 
 

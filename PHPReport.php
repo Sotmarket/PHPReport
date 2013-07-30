@@ -169,6 +169,12 @@ class PHPReport {
     public function setImageDirectory($imageDirectory)
     {
         $this->imageDirectory = $imageDirectory;
+        if (!is_dir($sImageDirectory)){
+            $result = mkdir($sImageDirectory,0775);
+            if (!$result){
+                throw new Exception ("Unable to create dir:" . $sImageDirectory);
+            }
+        }
         return $this;
     }
 
