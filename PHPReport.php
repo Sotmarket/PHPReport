@@ -33,6 +33,9 @@
  * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
 
+require_once ("tools/PageModel.php");
+require_once ("tools/Pager.php");
+require_once ("decorators/PageDecorator.php");
 class PHPReport {
     
     //report template
@@ -143,7 +146,8 @@ class PHPReport {
     private $objPHPExcel;
     private $objWorksheet;
     private $objWriter;
-    
+    protected $arDecorators;
+    protected $imageDirectory;
     /**
      * Creates new report with some configuration parameters
      * @param array $config 
@@ -153,7 +157,26 @@ class PHPReport {
         $this->setConfig($config);
         $this->init();
     }
-    
+    public function addDecorator($decorator){
+        $this->arDecorators[] = $decorator;
+    }
+
+    /**
+     * Установить диреткорию картинки
+     * @param $imageDirectory
+     * @return $this
+     */
+    public function setImageDirectory($imageDirectory)
+    {
+        $this->imageDirectory = $imageDirectory;
+        return $this;
+    }
+
+    protected function getImageDirectory()
+    {
+        return $this->imageDirectory;
+    }
+
     /**
      * Uses configuration array to adjust report parameters
      * @param array $config 
@@ -266,7 +289,7 @@ class PHPReport {
      * id - unique identifier of data group
      * data - Single array of data
      */
-    public  function addData($id, $data,$repeat=false,$minRows=NULL,$format=NULL)
+    public  function addData($id, $data,$repeat=false,$minRows=null,$format=null)
     {
 
         $row = array("id"=>$id, "data"=>$data, "repeat"=>$repeat);
@@ -508,11 +531,19 @@ class PHPReport {
 
         //call the replacing function
         $this->searchAndReplace();
-        
+        $this->decorate();
         //generate heading if heading text is set
         if($this->_headingText!='')
             $this->generateHeading();
     return $this;
+    }
+    protected function decorate(){
+        $decorators = $this->arDecorators;
+        if ($decorators){
+            foreach ($decorators as $decorator){
+                $decorator->decorate();
+            }
+        }
     }
     
     /**
@@ -839,12 +870,12 @@ class PHPReport {
                 $cell->setValue(str_replace($this->_search, $this->_replace, $cell->getValue()));
 
                 //если в ячейке содержится валидный урл - удаляем значение и вставляем картинку
-                if(filter_var($cell->getValue(), FILTER_VALIDATE_URL) !== FALSE){
+                if(filter_var($cell->getValue(), FILTER_VALIDATE_URL) !== false){
                     $url = $cell->getValue();
                     $cell->setValue('');
                     $oWorkSheet = $this->getWorkSheet();
                     $iRowHeight = $oWorkSheet->getRowDimension($cell->getRow())->getRowHeight();
-                    $sImageDirectory = "fake";
+                    $sImageDirectory = $this->getImageDirectory();
                     if (!is_dir($sImageDirectory)){
                         mkdir($sImageDirectory,0775);
                     }
