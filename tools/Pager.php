@@ -48,7 +48,7 @@ class Pager{
     {
         if (0 == count ($this->rowBounds)){
             $sheet = $this->getExcelSheet();
-            $highestRow = $sheet->getHighestRow()+15; // футер с запасом
+            $highestRow = $sheet->getHighestRow(); // футер с запасом
             $page = 1;
             $printMargins = $sheet->getPageMargins();
             $footer_top  =($printMargins->getTop()+$printMargins->getBottom())*self::INCH_FACTOR;
@@ -57,6 +57,7 @@ class Pager{
             // $footer_top  =25;
             // сумма высот колонок заголовка, переносимого на каждой странице
             $header = $this->getHeaderRowHeight();
+           // var_dump($header);
             //$dimensions = $sheet->getRowDimensions();
 
             $count_per_page = 0;
@@ -67,7 +68,9 @@ class Pager{
                 $count_per_page++;
                 // echo($i . ":".$height."\n");
                 if ($sum > (($this->getPageHeight()))){
-                    $this->rowBounds[$page]=$i-1;
+                   // echo($sum);
+                    //die();
+                    $this->rowBounds[$page]=$i;
                     //echo ("page:" . $page . "count_per_page" . ($count_per_page-1)."\n");
                     $page++;
                     $sum=$height+$footer_top-$header;
@@ -88,7 +91,7 @@ class Pager{
         $sheet = $this->getExcelSheet();
         $rowsRepeat = $sheet->getPageSetup()->getRowsToRepeatAtTop();
         $result = 0;
-        if (is_array($rowsRepeat)){
+        if (is_array($rowsRepeat) && $rowsRepeat[0]>0){
 
             for ($k=$rowsRepeat[0]; $k<=$rowsRepeat[1]; $k++){
                 $result+= $sheet->getRowDimension($k)->getRowHeight();
