@@ -33,9 +33,7 @@
  * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
 
-require_once ("tools/PageModel.php");
-require_once ("tools/Pager.php");
-require_once ("decorators/PageDecorator.php");
+
 class PHPReport {
     
     //report template
@@ -144,9 +142,25 @@ class PHPReport {
      * @var PHPExcel
      */
     private $objPHPExcel;
+    /**
+     * @var PHPExcel_Worksheet
+     */
     private $objWorksheet;
     private $objWriter;
+    /**
+     * Массив дектораторов
+     * @var
+     */
     protected $arDecorators;
+    /**
+     * Пейджер для разбивки по страницам
+     * @var IExcelPager
+     */
+    protected $pager;
+    /**
+     * путь к папке куда сливать файлы
+     * @var string
+     */
     protected $imageDirectory;
     /**
      * Creates new report with some configuration parameters
@@ -159,6 +173,25 @@ class PHPReport {
     }
     public function addDecorator($decorator){
         $this->arDecorators[] = $decorator;
+    }
+
+    /**
+     * Установить Пейджер
+     * @param IExcelPager $pager
+     * @return $this
+     */
+    public function setPager(IExcelPager $pager=NULL)
+    {
+        $this->pager = $pager;
+        return $this;
+    }
+
+    /**
+     * @return IExcelPager
+     */
+    protected function getPager()
+    {
+        return $this->pager;
     }
 
     /**
@@ -608,6 +641,10 @@ class PHPReport {
                 $needMerge[]=$mergeCell;
             }
         }
+        $rowDimension = $this->objWorksheet->getRowDimensions();
+       // print_r($rowDimension); print($rowsFound); die();
+        $defaultFont = $this->objWorksheet->getDefaultStyle()->getFont();
+        $rowSize = PHPExcel_Shared_Font::getDefaultRowHeightByFont($defaultFont);
         //check all the data
         foreach ($data['data'] as $value)
         {
@@ -616,8 +653,23 @@ class PHPReport {
             $newRowIndex=$firstRowFoundAt+$skip;
             
             //insert one or more rows if needed
-            if($minRows<$rowCounter)
+            if($minRows<$rowCounter){
                 $this->objWorksheet->insertNewRowBefore($newRowIndex,$rowsFound);
+                for ($t=1; $t<=$rowsFound;$t++){
+                    $tIndex = $newRowIndex+$t-1;
+                    if (!isset($rowDimension[$tIndex])){
+                        // Устанавливаем высоту колонки по шрифту по умолчанию
+                        $objDimension = new  PHPExcel_Worksheet_RowDimension($tIndex);
+                        $objDimension->setRowHeight($rowSize);
+                        $rowDimension[$tIndex] = $objDimension;
+                    }
+                    else {
+                        $rowDimension[$tIndex]->setRowHeight($rowSize);
+                    }
+                }
+
+            }
+
             
             //copy merge definitions
             foreach($needMerge as $nm)
@@ -631,6 +683,8 @@ class PHPReport {
             //generate row of data
             $this->generateSingleRepeatingRow($value, $repeatTemplateArray, $rowCounter, $skip, $data['id'], $data['format']);
         }
+
+        $this->objWorksheet->setRowDimensions($rowDimension);
         //remove merge on template, BUG fix
         foreach($needMerge as $nm)
         {
@@ -995,8 +1049,9 @@ class PHPReport {
      */
     public function renderPdf($filename)
     {
-
+        //print_r($this->objWorksheet->getRowDimensions());die();
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'PDF');
+        $this->objWriter->setPager($this->getPager());
         $this->objWriter->setSheetIndex($this->objPHPExcel->getActiveSheetIndex());
         $this->objWriter->setUseInlineCss(false);
         $this->objWriter->setImagesRoot("");
