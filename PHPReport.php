@@ -189,7 +189,7 @@ class PHPReport {
     /**
      * @return IExcelPager
      */
-    protected function getPager()
+    public function getPager()
     {
         return $this->pager;
     }
