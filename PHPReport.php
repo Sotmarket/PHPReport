@@ -1002,11 +1002,17 @@ class PHPReport {
     /**
      * Renders report as a HTML output
      */
-    public function renderHtml($filename)
+    public function renderHtml($filename, $isPageable=false)
     {
+        if ($isPageable){
+            $this->objWriter = new PHPExcel_Writer_PageableHtml($this->objPHPExcel);
+            $this->objWriter->setPager($this->getPager());
+        }
+        else {
+            $this->objWriter = new PHPExcel_Writer_HTML($this->objPHPExcel);
+        }
 
-        $this->objWriter = new PHPExcel_Writer_HTML($this->objPHPExcel);
-        $this->objWriter->setUseInlineCss(true);
+        $this->objWriter->setUseInlineCss(false);
         $this->objWriter->setSheetIndex($this->objPHPExcel->getActiveSheetIndex());
         // Generate HTML
         $html = '';
