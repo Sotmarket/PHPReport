@@ -8,7 +8,7 @@
  * @date: 05.08.13
  * @version    $Id: $
  */
-interface IExcelPager{
+interface IDecorator{
     public function __construct(
         PHPExcel_Worksheet $excelSheet
     );

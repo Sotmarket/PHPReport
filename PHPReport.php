@@ -33,7 +33,8 @@
  * @copyright  Copyright (c) 2006 - 2011 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
 
-
+require_once "decorators/IDecorator.php";
+require_once "decorators/CellHeightDecorator.php";
 class PHPReport {
     
     //report template
@@ -171,7 +172,7 @@ class PHPReport {
         $this->setConfig($config);
         $this->init();
     }
-    public function addDecorator($decorator){
+    public function addDecorator(IDecorator $decorator){
         $this->arDecorators[] = $decorator;
     }
 
