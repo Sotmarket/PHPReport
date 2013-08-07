@@ -1003,7 +1003,7 @@ class PHPReport {
     /**
      * Renders report as a HTML output
      */
-    public function renderHtml($filename, $isPageable=false)
+    public function renderHtml($filename, $isPageable=false, $tableWidth=NULL)
     {
         if ($isPageable){
             $this->objWriter = new PHPExcel_Writer_PageableHtml($this->objPHPExcel);
@@ -1012,7 +1012,7 @@ class PHPReport {
         else {
             $this->objWriter = new PHPExcel_Writer_HTML($this->objPHPExcel);
         }
-
+        $this->objWriter->setTableWidth($tableWidth);
         $this->objWriter->setUseInlineCss(false);
         $this->objWriter->setSheetIndex($this->objPHPExcel->getActiveSheetIndex());
         // Generate HTML
@@ -1054,11 +1054,13 @@ class PHPReport {
     /**
      * Renders report as a PDF file
      */
-    public function renderPdf($filename)
+    public function renderPdf($filename, $isPageable=true, $tableWidth=NULL)
     {
-        //print_r($this->objWorksheet->getRowDimensions());die();
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'PDF');
-        $this->objWriter->setPager($this->getPager());
+        if ($isPageable){
+            $this->objWriter->setPager($this->getPager());
+        }
+        $this->objWriter->setTableWidth($tableWidth);
         $this->objWriter->setSheetIndex($this->objPHPExcel->getActiveSheetIndex());
         $this->objWriter->setUseInlineCss(false);
         $this->objWriter->setImagesRoot("");
