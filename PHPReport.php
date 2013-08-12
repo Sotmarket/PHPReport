@@ -1046,6 +1046,9 @@ class PHPReport {
     {
 
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'Excel5');
+        if (NULL != $this->getPager()){
+            $this->getPager()->getSmoothedPageMap();
+        }
         $this->objWriter->save($filename);
         return $this;
 
