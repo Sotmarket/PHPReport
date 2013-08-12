@@ -1046,8 +1046,17 @@ class PHPReport {
     {
 
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'Excel5');
+        $sheet = $this->getWorkSheet();
         if (NULL != $this->getPager()){
-            $this->getPager()->getSmoothedPageMap();
+            $pages = $this->getPager()->getSmoothedPageMap();
+            $i=0;
+            foreach ($pages as $page){
+                $i++;
+                if (count($pages) != $i){
+                    $sheet->setBreak('A'.$page->getFinish(),PHPExcel_Worksheet::BREAK_ROW);
+                }
+
+            }
         }
         $this->objWriter->save($filename);
         return $this;
