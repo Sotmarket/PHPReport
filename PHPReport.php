@@ -1073,7 +1073,7 @@ class PHPReport {
             $this->objWriter->setPager($this->getPager());
         }
         $this->objWriter->setTableWidth($tableWidth);
-        $this->objWriter->setSheetIndex($this->objPHPExcel->getActiveSheetIndex());
+        //$this->objWriter->setSheetIndex($this->objPHPExcel->getActiveSheetIndex());
         $this->objWriter->setUseInlineCss(false);
         $this->objWriter->setImagesRoot("");
         $this->objWriter->save($filename);
