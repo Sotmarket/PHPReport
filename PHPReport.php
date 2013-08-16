@@ -147,6 +147,9 @@ class PHPReport {
      * @var PHPExcel_Worksheet
      */
     private $objWorksheet;
+    /**
+     * @var PHPExcel_Writer_IWriter
+     */
     private $objWriter;
     /**
      * Массив дектораторов
@@ -181,7 +184,7 @@ class PHPReport {
      * @param IExcelPager $pager
      * @return $this
      */
-    public function setPager(IExcelPager $pager=NULL)
+    public function setPager(IExcelPager $pager=null)
     {
         $this->pager = $pager;
         return $this;
@@ -1003,7 +1006,7 @@ class PHPReport {
     /**
      * Renders report as a HTML output
      */
-    public function renderHtml($filename, $isPageable=false, $tableWidth=NULL)
+    public function renderHtml($filename, $isPageable=false, $tableWidth=null)
     {
         if ($isPageable){
             $this->objWriter = new PHPExcel_Writer_PageableHtml($this->objPHPExcel);
@@ -1047,7 +1050,7 @@ class PHPReport {
 
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'Excel5');
         $sheet = $this->getWorkSheet();
-        if (NULL != $this->getPager()){
+        if (null != $this->getPager()){
             $pages = $this->getPager()->getSmoothedPageMap();
             $i=0;
             foreach ($pages as $page){
@@ -1066,14 +1069,14 @@ class PHPReport {
     /**
      * Renders report as a PDF file
      */
-    public function renderPdf($filename, $isPageable=true, $tableWidth=NULL)
+    public function renderPdf($filename, $isPageable=true, $tableWidth=null)
     {
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'PDF');
         if ($isPageable){
             $this->objWriter->setPager($this->getPager());
         }
         $this->objWriter->setTableWidth($tableWidth);
-        $this->objWriter->setSheetIndex($this->objPHPExcel->getActiveSheetIndex());
+        $this->objWriter->setSheetIndex(null);
         $this->objWriter->setUseInlineCss(false);
         $this->objWriter->setImagesRoot("");
         $this->objWriter->save($filename);
