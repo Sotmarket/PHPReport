@@ -37,6 +37,7 @@ class CellHeightDecorator implements IDecorator{
             $value = $cell->getValue();
             //$length = mb_strlen($value);
            // $chunks = round($length/40);
+            $value = preg_replace('/(\v|\s)+/', ' ', $value);
             $nValue = wordwrap($value, $this->getWordsByLine(),"\n");
             $count  = substr_count ($nValue, "\n");
             $rowSize = $defSize*($count+1);
