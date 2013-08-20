@@ -42,8 +42,10 @@ class CellHeightDecorator implements IDecorator{
             $nValue = wordwrap($value, $this->getWordsByLine(),"\n");
             $count  = substr_count ($nValue, "\n");
             $rowSize = $defSize*($count+1);
+            if ($nValue){
+                $cell->setValue($nValue);
+            }
 
-            $cell->setValue($nValue);
             if (!isset($rowDimension[$t])){
 
                 $objDimension = new  PHPExcel_Worksheet_RowDimension($t);
