@@ -20,7 +20,15 @@ class CellHeightDecorator implements IDecorator{
     public function __construct ( PHPExcel_Worksheet $excelSheet ){
         $this->setExcelSheet($excelSheet);
     }
-
+    private function mb_wordwrap($str){
+        $width = $this->getWordsByLine();
+        $break = "\n";
+        return preg_replace(
+            '~(?P<str>.{' . $width . ',}?' .  '\s+' . ')(?=\S+)~mus',
+            '$1' . $break,
+            $str
+        );
+    }
     /**
      * Декорировать excelSheet
      */
@@ -35,12 +43,12 @@ class CellHeightDecorator implements IDecorator{
         for ($t=$this->getStartDataRow(); $t<=$finish;$t++){
             $cell = $sheet->getCellByColumnAndRow($this->getDynamicColumn(),$t);
             $value = $cell->getValue();
-            //$length = mb_strlen($value);
-           // $chunks = round($length/40);
-            $value = strip_tags($value);
-            $value = preg_replace('/(\v|\s)+/', ' ', $value);
-            $nValue = wordwrap($value, $this->getWordsByLine(),"\n");
-            $count  = substr_count ($nValue, "\n");
+
+            $value = mb_ereg_replace ('/(\n)+/', ' ', $value);
+
+            $nValue = $this->mb_wordwrap($value);
+            $nValue = trim($nValue);
+            $count  = mb_substr_count ($nValue, "\n");
             $rowSize = $defSize*($count+1);
             if ($nValue){
                 $cell->setValue($nValue);
