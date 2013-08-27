@@ -1069,11 +1069,14 @@ class PHPReport {
     /**
      * Renders report as a PDF file
      */
-    public function renderPdf($filename, $isPageable=true, $tableWidth=null)
+    public function renderPdf($filename, $isPageable=true, $tableWidth=null, $defaultFontSize=null)
     {
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'PDF');
         if ($isPageable){
             $this->objWriter->setPager($this->getPager());
+        }
+        if (null != $defaultFontSize){
+            $this->objWriter->setDefaultFontSize($defaultFontSize);
         }
         $this->objWriter->setTableWidth($tableWidth);
         $this->objWriter->setSheetIndex(null);
