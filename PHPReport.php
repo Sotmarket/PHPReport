@@ -167,6 +167,16 @@ class PHPReport {
      */
     protected $imageDirectory;
     /**
+     * веб корень, откуда берем картинки
+     * @var
+     */
+    protected $webRoot='.';
+    /**
+     * корень проекта, который надо отсекать, для webroot
+     * @var
+     */
+    protected $projectRoot;
+    /**
      * Creates new report with some configuration parameters
      * @param array $config 
      */
@@ -199,7 +209,41 @@ class PHPReport {
     }
 
     /**
-     * Установить диреткорию картинки
+     * @param  $projectRoot
+     */
+    public function setProjectRoot($projectRoot)
+    {
+        $this->projectRoot = $projectRoot;
+        return $this;
+    }
+
+    /**
+     * @return
+     */
+    protected function getProjectRoot()
+    {
+        return $this->projectRoot;
+    }
+
+    /**
+     * @param  $webRoot
+     */
+    public function setWebRoot($webRoot)
+    {
+        $this->webRoot = $webRoot;
+        return $this;
+    }
+
+    /**
+     * @return
+     */
+    protected function getWebRoot()
+    {
+        return $this->webRoot;
+    }
+
+    /**
+     * Установить директорию картинки
      * @param $imageDirectory
      * @return $this
      */
@@ -1009,20 +1053,25 @@ class PHPReport {
     public function renderHtml($filename, $isPageable=false, $tableWidth=null)
     {
         if ($isPageable){
-            $this->objWriter = new PHPExcel_Writer_PageableHtml($this->objPHPExcel);
-            $this->objWriter->setPager($this->getPager());
+            $writer = new PHPExcel_Writer_PageableHtml($this->objPHPExcel);
+            $writer->setPager($this->getPager());
         }
         else {
-            $this->objWriter = new PHPExcel_Writer_HTML($this->objPHPExcel);
+            $writer = new PHPExcel_Writer_HTML($this->objPHPExcel);
         }
-        $this->objWriter->setTableWidth($tableWidth);
-        $this->objWriter->setUseInlineCss(false);
-        $this->objWriter->setSheetIndex($this->objPHPExcel->getActiveSheetIndex());
+        $writer
+            ->setImagesRoot($this->getWebRoot())
+            ->setProjectRoot($this->getProjectRoot())
+            ->setTableWidth($tableWidth)
+            ->setUseInlineCss(false)
+            ->setSheetIndex ($this->objPHPExcel->getActiveSheetIndex())
+
+        ;
         // Generate HTML
         $html = '';
-        $html .= $this->objWriter->generateHTMLHeader(true);
-        $html .= $this->objWriter->generateSheetData();
-        $html .= $this->objWriter->generateHTMLFooter();
+        $html .= $writer->generateHTMLHeader(true);
+        $html .= $writer->generateSheetData();
+        $html .= $writer->generateHTMLFooter();
         $html .= '';
         file_put_contents($filename, $html);
 
@@ -1081,7 +1130,7 @@ class PHPReport {
         $this->objWriter->setTableWidth($tableWidth);
         $this->objWriter->setSheetIndex(null);
         $this->objWriter->setUseInlineCss(false);
-        $this->objWriter->setImagesRoot("");
+
         $this->objWriter->save($filename);
         return $this;
 
